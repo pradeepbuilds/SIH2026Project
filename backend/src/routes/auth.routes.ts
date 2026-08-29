@@ -384,32 +384,23 @@ router.put('/profile', authenticateJwt, async (req: AuthRequest, res: Response) 
       return;
     }
 
-    if (role === ROLES.INSTITUTION_ADMIN) {
-      let instId = req.user!.institutionId;
-      if (!instId) {
-        const firstInst = await prisma.institution.findFirst();
-        instId = firstInst?.id || null;
-      }
-
-      if (instId) {
-        const updated = await prisma.institution.update({
-          where: { id: instId },
-          data: {
-            name: body.name !== undefined ? body.name : undefined,
-            type: body.type !== undefined ? body.type : undefined,
-            location: body.location !== undefined ? body.location : undefined,
-            code: body.code !== undefined ? body.code : undefined,
-            logoUrl: body.logoUrl !== undefined ? body.logoUrl : undefined,
-            address: body.address !== undefined ? body.address : undefined,
-            website: body.website !== undefined ? body.website : undefined,
-            placementOfficerName: body.placementOfficerName !== undefined ? body.placementOfficerName : undefined,
-            placementOfficerEmail: body.placementOfficerEmail !== undefined ? body.placementOfficerEmail : undefined,
-            placementOfficerPhone: body.placementOfficerPhone !== undefined ? body.placementOfficerPhone : undefined,
-          },
-        });
-        res.json({ message: 'Institution settings updated successfully', profile: updated, institution: updated });
-        return;
-      }
+    if (role === ROLES.INSTITUTION_ADMIN && req.user!.institutionId) {
+      const updated = await prisma.institution.update({
+        where: { id: req.user!.institutionId },
+        data: {
+          name: body.name !== undefined ? body.name : undefined,
+          type: body.type !== undefined ? body.type : undefined,
+          location: body.location !== undefined ? body.location : undefined,
+          logoUrl: body.logoUrl !== undefined ? body.logoUrl : undefined,
+          address: body.address !== undefined ? body.address : undefined,
+          website: body.website !== undefined ? body.website : undefined,
+          placementOfficerName: body.placementOfficerName !== undefined ? body.placementOfficerName : undefined,
+          placementOfficerEmail: body.placementOfficerEmail !== undefined ? body.placementOfficerEmail : undefined,
+          placementOfficerPhone: body.placementOfficerPhone !== undefined ? body.placementOfficerPhone : undefined,
+        },
+      });
+      res.json({ message: 'Institution settings updated successfully', profile: updated });
+      return;
     }
 
     res.json({ message: 'Profile updated' });
@@ -480,26 +471,16 @@ router.post('/profile-photo', authenticateJwt, (req: AuthRequest, res: Response,
         where: { userId },
         data: { avatarUrl },
       });
-    } else if (role === ROLES.INDUSTRY) {
-      const compId = req.user!.companyId;
-      if (compId) {
-        await prisma.company.update({
-          where: { id: compId },
-          data: { logoUrl: avatarUrl },
-        });
-      }
-    } else if (role === ROLES.INSTITUTION_ADMIN) {
-      let instId = req.user!.institutionId;
-      if (!instId) {
-        const firstInst = await prisma.institution.findFirst();
-        instId = firstInst?.id || null;
-      }
-      if (instId) {
-        await prisma.institution.update({
-          where: { id: instId },
-          data: { logoUrl: avatarUrl },
-        });
-      }
+    } else if (role === ROLES.INDUSTRY && req.user!.companyId) {
+      await prisma.company.update({
+        where: { id: req.user!.companyId },
+        data: { logoUrl: avatarUrl },
+      });
+    } else if (role === ROLES.INSTITUTION_ADMIN && req.user!.institutionId) {
+      await prisma.institution.update({
+        where: { id: req.user!.institutionId },
+        data: { logoUrl: avatarUrl },
+      });
     }
 
     res.json({
@@ -538,46 +519,11 @@ router.delete('/profile-photo', authenticateJwt, async (req: AuthRequest, res: R
         where: { userId },
         data: { avatarUrl: null },
       });
-    } else if (role === ROLES.INDUSTRY && req.user!.companyId) {
-      await prisma.company.update({
-        where: { id: req.user!.companyId },
-        data: { logoUrl: null },
-      });
-    } else if (role === ROLES.INSTITUTION_ADMIN) {
-      let instId = req.user!.institutionId;
-      if (!instId) {
-        const firstInst = await prisma.institution.findFirst();
-        instId = firstInst?.id || null;
-      }
-      if (instId) {
-        await prisma.institution.update({
-          where: { id: instId },
-          data: { logoUrl: null },
-        });
-      }
     }
 
     res.json({ message: 'Profile photo removed successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to remove profile photo' });
-  }
-});
-
-// GET /api/auth/institution (Public / general endpoint to get current institution settings)
-router.get('/institution', async (_req, res: Response) => {
-  try {
-    const institution = await prisma.institution.findFirst({
-      orderBy: { createdAt: 'asc' },
-    });
-
-    if (!institution) {
-      res.status(404).json({ error: 'Institution not found' });
-      return;
-    }
-
-    res.json({ institution });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch institution' });
   }
 });
 
@@ -626,11 +572,11 @@ router.get('/demo-accounts', async (_req, res) => {
       },
       {
         role: ROLES.ALUMNI,
-        roleLabel: 'Alumni (Software Engineer at Microsoft)',
+        roleLabel: 'Alumni (Senior SDE at Microsoft)',
         email: 'alumni.demo@edubridge.local',
         altEmail: 'alumni@demo.com',
         password: 'password123',
-        description: 'Rahul Patil (MITAOE Alum 2024) • Microsoft Software Engineer, Mentorship & System Design.',
+        description: 'Pooja Kulkarni (MITAOE Alum 2022) • Azure Core SDE, Mentorship & Career Stories.',
       },
       {
         role: ROLES.ALUMNI_ADMIN,

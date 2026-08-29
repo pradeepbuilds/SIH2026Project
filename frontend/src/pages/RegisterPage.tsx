@@ -36,7 +36,7 @@ export const RegisterPage: React.FC = () => {
   const [designation, setDesignation] = useState('Assistant Professor');
   const [companyName, setCompanyName] = useState('');
   const [industryType, setIndustryType] = useState('Enterprise Software & Cloud Systems');
-  const [institutionName, setInstitutionName] = useState('MIT Academy of Engineering, Pune');
+  const [institutionName, setInstitutionName] = useState('COEP Technological University, Pune');
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

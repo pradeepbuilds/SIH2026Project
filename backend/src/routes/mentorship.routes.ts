@@ -77,7 +77,7 @@ const handleGetEvents = async (req: AuthRequest, res: Response) => {
           name: ev.hostAcademician.name,
           department: ev.hostAcademician.department,
           designation: ev.hostAcademician.designation,
-          institutionName: ev.hostAcademician.user.institution?.name || 'MIT Academy of Engineering, Pune',
+          institutionName: ev.hostAcademician.user.institution?.name || 'COEP Technological University, Pune',
           avatarUrl: ev.hostAcademician.avatarUrl,
         },
       };

@@ -78,7 +78,7 @@ export const InstitutionDashboard: React.FC = () => {
             <span>Institution Placement & Curriculum Administration</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            {user?.institution?.name || 'MIT Academy of Engineering, Pune'} Placement Portal
+            COEP Technological University Placement Portal
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
             Real-time multi-branch skill gap monitoring, syllabus alignment signals, and student placement analytics.

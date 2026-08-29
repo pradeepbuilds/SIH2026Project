@@ -35,14 +35,12 @@ import { FacultyProfilePage } from './pages/academician/FacultyProfilePage';
 import { IndustryDashboard } from './pages/industry/IndustryDashboard';
 import { PostOpportunityPage } from './pages/industry/PostOpportunityPage';
 import { ApplicantReviewPage } from './pages/industry/ApplicantReviewPage';
-import { CompanyProfilePage } from './pages/industry/CompanyProfilePage';
 
 // Admin Pages
 import { InstitutionDashboard } from './pages/admin/InstitutionDashboard';
 import { PlacementStatsPage } from './pages/admin/PlacementStatsPage';
 import { CurriculumGapRadarPage } from './pages/admin/CurriculumGapRadarPage';
 import { RosterPage } from './pages/admin/RosterPage';
-import { InstitutionSettingsPage } from './pages/admin/InstitutionSettingsPage';
 
 // Alumni Pages
 import { AlumniDashboard } from './pages/alumni/AlumniDashboard';
@@ -90,7 +88,6 @@ export function App() {
                 <Route path="/industry/dashboard" element={<IndustryDashboard />} />
                 <Route path="/industry/post" element={<PostOpportunityPage />} />
                 <Route path="/industry/applicants" element={<ApplicantReviewPage />} />
-                <Route path="/industry/company-profile" element={<CompanyProfilePage />} />
               </Route>
 
               {/* Institution Admin Routes */}
@@ -99,7 +96,6 @@ export function App() {
                 <Route path="/admin/placement-stats" element={<PlacementStatsPage />} />
                 <Route path="/admin/curriculum-gap" element={<CurriculumGapRadarPage />} />
                 <Route path="/admin/roster" element={<RosterPage />} />
-                <Route path="/admin/settings" element={<InstitutionSettingsPage />} />
               </Route>
 
               {/* Alumni Routes */}

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Camera, Upload, Trash2, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import { api } from '../../lib/api';
+import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 interface ProfilePhotoUploadProps {
@@ -16,7 +16,7 @@ export const ProfilePhotoUpload: React.FC<ProfilePhotoUploadProps> = ({
   size = 'md',
   shape = 'circle',
 }) => {
-  const { user, refreshUserProfile } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentAvatarUrl || user?.avatarUrl || null);
   const [isUploading, setIsUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -70,7 +70,7 @@ export const ProfilePhotoUpload: React.FC<ProfilePhotoUploadProps> = ({
       setPreviewUrl(newAvatarUrl);
       setSuccessMsg('Profile photo updated successfully!');
       if (onPhotoUpdated) onPhotoUpdated(newAvatarUrl);
-      if (refreshUserProfile) await refreshUserProfile();
+      if (refreshUser) await refreshUser();
     } catch (err: any) {
       const msg = err.response?.data?.error || 'Failed to upload profile photo. Please try again.';
       setErrorMsg(msg);
@@ -88,7 +88,7 @@ export const ProfilePhotoUpload: React.FC<ProfilePhotoUploadProps> = ({
       setPreviewUrl(null);
       setSuccessMsg('Profile photo removed.');
       if (onPhotoUpdated) onPhotoUpdated(null);
-      if (refreshUserProfile) await refreshUserProfile();
+      if (refreshUser) await refreshUser();
     } catch (err: any) {
       setErrorMsg(err.response?.data?.error || 'Failed to remove photo.');
     } finally {

@@ -22,7 +22,6 @@ const DEMO_CREDENTIALS: Record<UserRole, { email: string; password: string }> = 
   [ROLES.INDUSTRY]: { email: 'industry@demo.com', password: 'password123' },
   [ROLES.INSTITUTION_ADMIN]: { email: 'admin@demo.com', password: 'password123' },
   [ROLES.ALUMNI]: { email: 'alumni@demo.com', password: 'password123' },
-  [ROLES.ALUMNI_ADMIN]: { email: 'alumni_admin@demo.com', password: 'password123' },
   [ROLES.ADMIN]: { email: 'admin@demo.com', password: 'password123' },
 };
 

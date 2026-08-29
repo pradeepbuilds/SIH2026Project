@@ -311,8 +311,8 @@ router.delete('/:id', authenticateJwt, async (req: AuthRequest, res: Response) =
   }
 });
 
-// Helper handler for toggling post likes
-const handleToggleLike = async (req: AuthRequest, res: Response) => {
+// POST /api/alumni/posts/:id/like (Toggle like)
+router.post('/:id/like', authenticateJwt, async (req: AuthRequest, res: Response) => {
   try {
     const id = req.params.id as string;
     const userId = req.user!.id;
@@ -350,13 +350,10 @@ const handleToggleLike = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to toggle like' });
   }
-};
+});
 
-router.post('/posts/:id/like', authenticateJwt, handleToggleLike);
-router.post('/:id/like', authenticateJwt, handleToggleLike);
-
-// Helper handler for adding comments to posts
-const handleAddComment = async (req: AuthRequest, res: Response) => {
+// POST /api/alumni/posts/:id/comment (Add comment to post)
+router.post('/:id/comment', authenticateJwt, async (req: AuthRequest, res: Response) => {
   try {
     const id = req.params.id as string;
     const { content } = req.body;
@@ -407,190 +404,6 @@ const handleAddComment = async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to add comment' });
-  }
-};
-
-router.post('/posts/:id/comments', authenticateJwt, handleAddComment);
-router.post('/posts/:id/comment', authenticateJwt, handleAddComment);
-router.post('/:id/comment', authenticateJwt, handleAddComment);
-
-// ==========================================
-// MENTORSHIP REQUESTS WORKFLOW
-// ==========================================
-
-// GET /api/alumni/mentorship-requests
-router.get('/mentorship-requests', authenticateJwt, async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user!.id;
-    const role = req.user!.role;
-
-    let requests: any[] = [];
-    if (role === ROLES.ALUMNI || role === ROLES.ACADEMICIAN || role === ROLES.ALUMNI_ADMIN || role === ROLES.INSTITUTION_ADMIN) {
-      // Incoming requests for mentor
-      requests = await prisma.mentorshipRequest.findMany({
-        where: { mentorUserId: userId },
-        include: {
-          studentUser: {
-            include: {
-              studentProfile: true,
-            },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-      });
-    } else {
-      // Outgoing requests for student
-      requests = await prisma.mentorshipRequest.findMany({
-        where: { studentUserId: userId },
-        include: {
-          mentorUser: {
-            include: {
-              alumniProfile: true,
-              academicianProfile: true,
-            },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-      });
-    }
-
-    const formatted = requests.map((r) => ({
-      id: r.id,
-      studentUserId: r.studentUserId,
-      mentorUserId: r.mentorUserId,
-      topic: r.topic,
-      message: r.message,
-      status: r.status,
-      responseNotes: r.responseNotes,
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString(),
-      studentUser: r.studentUser ? {
-        id: r.studentUser.id,
-        email: r.studentUser.email,
-        avatarUrl: r.studentUser.avatarUrl || r.studentUser.studentProfile?.avatarUrl,
-        studentProfile: r.studentUser.studentProfile,
-      } : undefined,
-      mentorUser: r.mentorUser ? {
-        id: r.mentorUser.id,
-        email: r.mentorUser.email,
-        avatarUrl: r.mentorUser.avatarUrl || r.mentorUser.alumniProfile?.avatarUrl,
-        alumniProfile: r.mentorUser.alumniProfile,
-        academicianProfile: r.mentorUser.academicianProfile,
-      } : undefined,
-    }));
-
-    res.json({ requests: formatted });
-  } catch (error) {
-    console.error('Fetch mentorship requests error:', error);
-    res.status(500).json({ error: 'Failed to fetch mentorship requests' });
-  }
-});
-
-// POST /api/alumni/mentorship-requests (Student requests mentorship from alumni/mentor)
-const mentorshipRequestSchema = z.object({
-  mentorUserId: z.string(),
-  topic: z.string().min(3),
-  message: z.string().min(10),
-});
-
-router.post('/mentorship-requests', authenticateJwt, validateBody(mentorshipRequestSchema), async (req: AuthRequest, res: Response) => {
-  try {
-    const studentUserId = req.user!.id;
-    const { mentorUserId, topic, message } = req.body;
-
-    const mentor = await prisma.user.findUnique({
-      where: { id: mentorUserId },
-      include: { alumniProfile: true },
-    });
-
-    if (!mentor) {
-      res.status(404).json({ error: 'Mentor not found' });
-      return;
-    }
-
-    // Create mentorship request record
-    const request = await prisma.mentorshipRequest.create({
-      data: {
-        studentUserId,
-        mentorUserId,
-        topic: topic.trim(),
-        message: message.trim(),
-        status: 'pending',
-      },
-    });
-
-    // Also send in-app notification to mentor
-    await prisma.notification.create({
-      data: {
-        userId: mentorUserId,
-        title: 'New Mentorship Request Received',
-        message: `A student requested mentorship on "${topic.slice(0, 50)}". Check your Mentorship tab.`,
-        type: 'mentorship',
-        linkUrl: '/alumni/dashboard',
-      },
-    });
-
-    res.status(201).json({
-      message: 'Mentorship request sent successfully!',
-      request,
-    });
-  } catch (error) {
-    console.error('Create mentorship request error:', error);
-    res.status(500).json({ error: 'Failed to submit mentorship request' });
-  }
-});
-
-// PUT /api/alumni/mentorship-requests/:id (Mentor accepts / rejects request with optional response notes)
-router.put('/mentorship-requests/:id', authenticateJwt, async (req: AuthRequest, res: Response) => {
-  try {
-    const id = req.params.id as string;
-    const { status, responseNotes } = req.body;
-
-    if (!['accepted', 'rejected', 'completed'].includes(status)) {
-      res.status(400).json({ error: 'Status must be accepted, rejected, or completed' });
-      return;
-    }
-
-    const existing = await prisma.mentorshipRequest.findUnique({
-      where: { id },
-    });
-
-    if (!existing) {
-      res.status(404).json({ error: 'Mentorship request not found' });
-      return;
-    }
-
-    if (existing.mentorUserId !== req.user!.id && req.user!.role !== ROLES.ALUMNI_ADMIN) {
-      res.status(403).json({ error: 'Not authorized to respond to this mentorship request' });
-      return;
-    }
-
-    const updated = await prisma.mentorshipRequest.update({
-      where: { id },
-      data: {
-        status,
-        responseNotes: responseNotes !== undefined ? responseNotes : existing.responseNotes,
-      },
-    });
-
-    // Send notification to the student
-    await prisma.notification.create({
-      data: {
-        userId: existing.studentUserId,
-        title: status === 'accepted' ? 'Mentorship Request Accepted! 🎉' : 'Mentorship Request Update',
-        message: `Your mentorship request regarding "${existing.topic}" was ${status}. ${responseNotes ? `Note: ${responseNotes}` : ''}`,
-        type: 'mentorship',
-        linkUrl: '/student/events',
-      },
-    });
-
-    res.json({
-      message: `Mentorship request ${status} successfully`,
-      request: updated,
-    });
-  } catch (error) {
-    console.error('Update mentorship request error:', error);
-    res.status(500).json({ error: 'Failed to update mentorship request' });
   }
 });
 

@@ -239,7 +239,7 @@ export const PortfolioPage: React.FC = () => {
                   required
                   value={issuer}
                   onChange={(e) => setIssuer(e.target.value)}
-                  placeholder="e.g. Amazon Web Services / MITAOE / TCS"
+                  placeholder="e.g. Amazon Web Services / COEP Tech / TCS"
                   className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>

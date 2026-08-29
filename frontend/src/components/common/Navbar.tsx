@@ -351,34 +351,18 @@ export const Navbar: React.FC = () => {
                     <Link
                       to="/alumni/dashboard"
                       className={`px-3 py-2 rounded-xl transition-all ${
-                        isActive('/alumni/dashboard') ? 'bg-blue-50 text-blue-800 font-bold' : 'hover:bg-slate-100'
+                        isActive('/alumni/dashboard') ? 'bg-blue-50 text-blue-800' : 'hover:bg-slate-100'
                       }`}
                     >
-                      Dashboard & Portal
+                      Alumni Portal
                     </Link>
                     <Link
                       to="/student/alumni"
                       className={`px-3 py-2 rounded-xl transition-all ${
-                        isActive('/student/alumni') ? 'bg-blue-50 text-blue-800 font-bold' : 'hover:bg-slate-100'
+                        isActive('/student/alumni') ? 'bg-blue-50 text-blue-800' : 'hover:bg-slate-100'
                       }`}
                     >
-                      Alumni Network & Knowledge
-                    </Link>
-                    <Link
-                      to="/student/events"
-                      className={`px-3 py-2 rounded-xl transition-all ${
-                        isActive('/student/events') ? 'bg-blue-50 text-blue-800 font-bold' : 'hover:bg-slate-100'
-                      }`}
-                    >
-                      Masterclasses & Events
-                    </Link>
-                    <Link
-                      to="/messages"
-                      className={`px-3 py-2 rounded-xl transition-all ${
-                        isActive('/messages') ? 'bg-blue-50 text-blue-800 font-bold' : 'hover:bg-slate-100'
-                      }`}
-                    >
-                      Mentorship Inquiries
+                      Alumni Directory
                     </Link>
                   </>
                 )}
@@ -470,16 +454,8 @@ export const Navbar: React.FC = () => {
                     }}
                     className="flex items-center gap-2.5 p-1.5 pl-2 rounded-xl hover:bg-slate-100 transition-colors border border-slate-200"
                   >
-                    <div className="w-7 h-7 rounded-lg overflow-hidden bg-blue-700 text-white flex items-center justify-center text-xs font-black shadow-2xs">
-                      {(user?.avatarUrl || student?.avatarUrl || faculty?.avatarUrl || alumni?.avatarUrl || company?.logoUrl || institution?.logoUrl) ? (
-                        <img
-                          src={(user?.avatarUrl || student?.avatarUrl || faculty?.avatarUrl || alumni?.avatarUrl || company?.logoUrl || institution?.logoUrl)!.startsWith('http') ? (user?.avatarUrl || student?.avatarUrl || faculty?.avatarUrl || alumni?.avatarUrl || company?.logoUrl || institution?.logoUrl)! : `http://localhost:5000${user?.avatarUrl || student?.avatarUrl || faculty?.avatarUrl || alumni?.avatarUrl || company?.logoUrl || institution?.logoUrl}`}
-                          alt="Avatar"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        displayName.slice(0, 2).toUpperCase()
-                      )}
+                    <div className="w-7 h-7 rounded-lg bg-blue-700 text-white flex items-center justify-center text-xs font-black shadow-2xs">
+                      {displayName.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="text-left hidden md:block">
                       <div className="text-xs font-bold text-slate-900 leading-none truncate max-w-[120px]">
@@ -558,17 +534,6 @@ export const Navbar: React.FC = () => {
                         >
                           <Settings className="w-4 h-4 text-blue-700" />
                           <span>Institution Settings</span>
-                        </Link>
-                      )}
-
-                      {user.role === ROLES.ALUMNI && (
-                        <Link
-                          to="/alumni/dashboard"
-                          onClick={() => setProfileDropdownOpen(false)}
-                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                        >
-                          <Award className="w-4 h-4 text-blue-700" />
-                          <span>Edit Alumni Profile</span>
                         </Link>
                       )}
 

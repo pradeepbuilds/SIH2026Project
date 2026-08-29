@@ -92,7 +92,7 @@ export const StudentDashboard: React.FC = () => {
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500">
-            {studentProfile?.degree || 'B.Tech'} • Year {studentProfile?.year || 3} (Semester {studentProfile?.semester || 6}) • CGPA: {studentProfile?.cgpa || 8.64} • {user?.institution?.name || 'MIT Academy of Engineering, Pune'}
+            {studentProfile?.degree || 'B.Tech'} • Year {studentProfile?.year || 3} (Semester {studentProfile?.semester || 6}) • CGPA: {studentProfile?.cgpa || 8.64} • COEP Technological University, Pune
           </p>
         </div>
 

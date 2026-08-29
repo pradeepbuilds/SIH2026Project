@@ -87,7 +87,7 @@ export const LoginPage: React.FC = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => handleDemoClick('student@demo.com')}
@@ -116,19 +116,6 @@ export const LoginPage: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => handleDemoClick('academician@demo.com')}
-              disabled={loading}
-              className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-300 transition-all text-left"
-            >
-              <Building2 className="w-4 h-4 text-indigo-700 shrink-0" />
-              <div className="truncate">
-                <div className="text-xs font-bold text-slate-900">Faculty</div>
-                <div className="text-[10px] text-slate-500 truncate">Dr. Joshi • HOD CSE</div>
-              </div>
-            </button>
-
-            <button
-              type="button"
               onClick={() => handleDemoClick('industry@demo.com')}
               disabled={loading}
               className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 transition-all text-left"
@@ -149,20 +136,7 @@ export const LoginPage: React.FC = () => {
               <Building2 className="w-4 h-4 text-purple-700 shrink-0" />
               <div className="truncate">
                 <div className="text-xs font-bold text-slate-900">Placement Cell</div>
-                <div className="text-[10px] text-slate-500 truncate">Dean / T&P Officer</div>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleDemoClick('alumni@demo.com')}
-              disabled={loading}
-              className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-rose-50 hover:border-rose-300 transition-all text-left"
-            >
-              <GraduationCap className="w-4 h-4 text-rose-700 shrink-0" />
-              <div className="truncate">
-                <div className="text-xs font-bold text-slate-900">Alumni</div>
-                <div className="text-[10px] text-slate-500 truncate">Rahul • Microsoft SDE</div>
+                <div className="text-[10px] text-slate-500 truncate">COEP Dean / T&P</div>
               </div>
             </button>
           </div>

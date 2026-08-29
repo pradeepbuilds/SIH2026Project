@@ -21,7 +21,6 @@ async function main() {
 
   // Clean existing tables in correct FK dependency order
   await prisma.auditLog.deleteMany();
-  await prisma.mentorshipRequest.deleteMany();
   await prisma.companyPlacementStat.deleteMany();
   await prisma.resumeDraft.deleteMany();
   await prisma.alumniPostLike.deleteMany();
@@ -870,7 +869,7 @@ async function main() {
     },
   });
 
-  const academicianAlias = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email: 'academician@demo.com',
       passwordHash,
@@ -883,26 +882,6 @@ async function main() {
   const academicianProfile = await prisma.academicianProfile.create({
     data: {
       userId: academicianUser.id,
-      name: 'Dr. Anjali Joshi',
-      department: 'Computer Science & Engineering',
-      branch: 'Computer Science & Engineering',
-      designation: 'Professor & Head of Department',
-      experienceYears: 18,
-      specialization: 'Distributed Cloud Systems & Microservices Architecture',
-      researchInterests: JSON.stringify(['Cloud Computing', 'Fault-Tolerant Systems', 'Curriculum Modernization']),
-      publications: JSON.stringify([
-        'Scalable Transaction Management in Multi-Cloud Microservices (IEEE Trans. 2024)',
-        'Adaptive Skill Mapping Framework for Engineering Education (Springer 2025)',
-      ]),
-      labExpertise: JSON.stringify(['High Performance Computing Lab', 'Cloud & IoT Research Center']),
-      expertiseTags: JSON.stringify(['Distributed Systems', 'Cloud Architecture', 'Java Microservices']),
-      bio: 'Senior Professor & HOD of Computer Engineering at MIT Academy of Engineering, Pune. Active researcher in distributed cloud systems and AICTE curriculum reforms.',
-    },
-  });
-
-  await prisma.academicianProfile.create({
-    data: {
-      userId: academicianAlias.id,
       name: 'Dr. Anjali Joshi',
       department: 'Computer Science & Engineering',
       branch: 'Computer Science & Engineering',
@@ -960,63 +939,43 @@ async function main() {
     },
   });
 
-  // Alumni Demo User 1: Rahul Patil (Software Engineer at Microsoft, Class of 2024)
+  // Alumni: Pooja Kulkarni (Senior SDE at Microsoft)
   const alumniUser = await prisma.user.create({
     data: {
       email: 'alumni.demo@edubridge.local',
       passwordHash,
       role: ROLES.ALUMNI,
       institutionId: mitaoe.id,
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
     },
   });
 
-  const alumniAlias = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email: 'alumni@demo.com',
       passwordHash,
       role: ROLES.ALUMNI,
       institutionId: mitaoe.id,
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
     },
   });
 
   await prisma.alumniProfile.create({
     data: {
       userId: alumniUser.id,
-      name: 'Rahul Patil',
-      graduationYear: 2024,
+      name: 'Pooja Kulkarni',
+      graduationYear: 2022,
       departmentName: 'Computer Science & Engineering',
       branchName: 'Computer Science & Engineering',
-      company: 'Microsoft',
-      role: 'Software Engineer',
-      experienceYears: 2,
+      company: 'Microsoft India',
+      role: 'Senior Software Engineer (Azure Core)',
+      experienceYears: 4,
       location: 'Hyderabad, India',
-      skills: JSON.stringify(['Java', 'Distributed Systems', 'Azure', 'System Design', 'Data Structures']),
-      linkedinUrl: 'https://linkedin.com/in/rahul-patil-msft',
-      githubUrl: 'https://github.com/rahulpatil',
-      bio: 'MITAOE CSE 2024 Alum. Software Engineer at Microsoft. Open for 1:1 resume reviews, system design preparation, and mock placement interviews.',
-      careerStoryQuote: 'Building strong foundations in DSA and real-world microservice projects in 3rd year was the turning point for cracking product company rounds.',
-      isAvailableForMentorship: true,
-    },
-  });
-
-  await prisma.alumniProfile.create({
-    data: {
-      userId: alumniAlias.id,
-      name: 'Rahul Patil',
-      graduationYear: 2024,
-      departmentName: 'Computer Science & Engineering',
-      branchName: 'Computer Science & Engineering',
-      company: 'Microsoft',
-      role: 'Software Engineer',
-      experienceYears: 2,
-      location: 'Hyderabad, India',
-      skills: JSON.stringify(['Java', 'Distributed Systems', 'Azure', 'System Design', 'Data Structures']),
-      linkedinUrl: 'https://linkedin.com/in/rahul-patil-msft',
-      githubUrl: 'https://github.com/rahulpatil',
-      bio: 'MITAOE CSE 2024 Alum. Software Engineer at Microsoft. Open for 1:1 resume reviews, system design preparation, and mock placement interviews.',
-      careerStoryQuote: 'Building strong foundations in DSA and real-world microservice projects in 3rd year was the turning point for cracking product company rounds.',
+      skills: JSON.stringify(['Distributed Systems', 'Go', 'Azure Cloud', 'System Design', 'Java']),
+      linkedinUrl: 'https://linkedin.com/in/pooja-kulkarni-msft',
+      githubUrl: 'https://github.com/poojakulkarni',
+      bio: 'MITAOE CSE 2022 Alum. Currently working on high-scale distributed infrastructure at Microsoft Azure. Open for 1:1 resume reviews and system design mock interviews.',
+      careerStoryQuote: 'MIT Academy of Engineering gave me solid fundamental foundations in OS, networks, and algorithms. Focus on building real end-to-end systems during your 3rd year!',
       isAvailableForMentorship: true,
     },
   });
@@ -1451,28 +1410,6 @@ Use the EduBridge Resume Builder to ensure your resume is ATS-friendly and backe
       type: 'event',
       linkUrl: '/student/events',
       read: true,
-    },
-  });
-
-  // 15. Seed Sample Mentorship Requests
-  await prisma.mentorshipRequest.create({
-    data: {
-      studentUserId: student1User.id,
-      mentorUserId: alumniUser.id,
-      topic: 'Microsoft Azure Backend Interview & System Design Preparation',
-      message: 'Hi Rahul Sir, I am preparing for product company campus drives. Would love your feedback on my Spring Boot capstone project and system design preparation strategy.',
-      status: 'pending',
-    },
-  });
-
-  await prisma.mentorshipRequest.create({
-    data: {
-      studentUserId: student2User.id,
-      mentorUserId: alumni2User.id,
-      topic: 'Robotics & ROS2 Automation Career Guidance',
-      message: 'Hello Rohan Sir, I am in 3rd year Mechanical focusing on ROS2 and autonomous robots. Seeking your advice on core automotive hardware-software roles at Bosch.',
-      status: 'accepted',
-      responseNotes: 'Happy to connect! Let us review your ROS simulation repos on GitHub this Saturday at 5 PM.',
     },
   });
 

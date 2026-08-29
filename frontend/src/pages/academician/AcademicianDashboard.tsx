@@ -71,7 +71,7 @@ export const AcademicianDashboard: React.FC = () => {
             Welcome, {profile?.name || 'Dr. Anjali Joshi'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
-            {profile?.designation || 'Professor & Head of Department'} • {profile?.department} • {user?.institution?.name || 'MIT Academy of Engineering, Pune'}
+            {profile?.designation || 'Professor & Head of Department'} • {profile?.department} • COEP Technological University
           </p>
         </div>
 

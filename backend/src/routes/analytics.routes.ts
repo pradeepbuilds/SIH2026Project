@@ -894,15 +894,11 @@ router.get('/naac-report', authenticateJwt, async (_req, res: Response) => {
     const totalStudents = await prisma.studentProfile.count();
     const placedStudents = await prisma.placedStudent.count();
     const events = await prisma.mentorshipEvent.count();
-    const institution = await prisma.institution.findFirst({ orderBy: { createdAt: 'asc' } });
-    const institutionName = institution?.name || 'MIT Academy of Engineering, Pune';
 
     res.json({
       reportTitle: 'Institutional Skill Mapping & Placement Assessment Report (NAAC / NIRF Criteria 5.2.1 & 5.2.2)',
       academicYear: '2025-2026',
-      institutionName,
-      institutionCode: institution?.code || 'MITAOE-PUN-01',
-      institutionLocation: institution?.location || 'Pune, Maharashtra',
+      institutionName: 'MIT Academy of Engineering, Pune',
       generatedAt: new Date().toISOString(),
       kpis: {
         totalEnrolledStudents: totalStudents || 2450,

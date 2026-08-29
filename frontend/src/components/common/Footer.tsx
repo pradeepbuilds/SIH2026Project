@@ -49,8 +49,8 @@ export const Footer: React.FC = () => {
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">Partner Institutions</h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li>MIT Academy of Engineering, Pune</li>
-              <li>Autonomous Engineering Colleges Network</li>
+              <li>COEP Technological University, Pune</li>
+              <li>VJTI Mumbai</li>
               <li>TCS Digital Labs University Relations</li>
               <li>Bosch Mobility Solutions & L&T</li>
             </ul>

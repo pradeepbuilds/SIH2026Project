@@ -17,7 +17,6 @@ import {
   FileText,
 } from 'lucide-react';
 import { ENGINEERING_DEPARTMENTS, ENGINEERING_BRANCHES_ALL } from '@ayush-portal/shared';
-import { ProfilePhotoUpload } from '../../components/common/ProfilePhotoUpload';
 
 export const FacultyProfilePage: React.FC = () => {
   const { user } = useAuth();
@@ -39,7 +38,7 @@ export const FacultyProfilePage: React.FC = () => {
   const [expertiseTags, setExpertiseTags] = useState('');
   const [bio, setBio] = useState('');
   const [phone, setPhone] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [orcidUrl, setOrcidUrl] = useState('');
 
@@ -60,7 +59,7 @@ export const FacultyProfilePage: React.FC = () => {
         setSpecialization(p.specialization || '');
         setBio(p.bio || '');
         setPhone(p.phone || '');
-        setAvatarUrl(p.avatarUrl || null);
+        setAvatarUrl(p.avatarUrl || '');
         setLinkedinUrl(p.linkedinUrl || '');
         setOrcidUrl(p.orcidUrl || '');
 
@@ -233,22 +232,16 @@ export const FacultyProfilePage: React.FC = () => {
                   className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
-            </div>
 
-            {/* Profile Photo Upload */}
-            <div className="pt-2">
-              <label className="block font-bold text-slate-700 mb-2">Faculty Profile Photo</label>
-              <div className="flex flex-col sm:flex-row items-center gap-5">
-                <ProfilePhotoUpload
-                  currentAvatarUrl={avatarUrl || user?.avatarUrl}
-                  shape="rounded"
-                  size="md"
-                  onPhotoUpdated={(newUrl) => setAvatarUrl(newUrl)}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Avatar / Profile Photo URL</label>
+                <input
+                  type="url"
+                  value={avatarUrl}
+                  onChange={(e) => setAvatarUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                 />
-                <div className="text-xs text-slate-500 space-y-0.5">
-                  <p className="font-semibold text-slate-800">Upload Formal Faculty Photo</p>
-                  <p>JPG, JPEG, PNG, or WEBP up to 5 MB.</p>
-                </div>
               </div>
             </div>
           </div>
@@ -309,7 +302,7 @@ export const FacultyProfilePage: React.FC = () => {
                 rows={3}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="Senior Professor & HOD of Computer Engineering. Guiding undergraduate scholars in distributed cloud systems..."
+                placeholder="Senior Professor & HOD of Computer Engineering at COEP. Guiding undergraduate scholars in distributed systems..."
                 className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
