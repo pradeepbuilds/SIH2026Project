@@ -19,6 +19,7 @@ import {
   Save,
   X,
 } from 'lucide-react';
+import { ProfilePhotoUpload } from '../../components/common/ProfilePhotoUpload';
 import { ENGINEERING_DEPARTMENTS, ENGINEERING_BRANCHES } from '@ayush-portal/shared';
 
 export const StudentProfilePage: React.FC = () => {
@@ -106,26 +107,32 @@ export const StudentProfilePage: React.FC = () => {
       {/* Header Profile Card */}
       <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-start sm:items-center gap-5">
-            <div className="w-20 h-20 rounded-2xl bg-blue-700 text-white flex items-center justify-center text-2xl font-black shadow-xs">
-              {student?.name?.slice(0, 2).toUpperCase() || 'ST'}
-            </div>
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+            <ProfilePhotoUpload
+              currentAvatarUrl={student?.avatarUrl || user?.avatarUrl}
+              shape="rounded"
+              size="lg"
+              onPhotoUpdated={() => {
+                fetchProfile();
+                if (refreshUserProfile) refreshUserProfile();
+              }}
+            />
             <div className="space-y-1">
-              <div className="flex items-center gap-2.5">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                   {student?.name || 'Roshan Shinde'}
                 </h1>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200">
                   <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-                  <span>AIIA / COEP Verified</span>
+                  <span>{student?.institutionName || 'Verified Scholar'}</span>
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-600 font-semibold">
                 {student?.degree} in {student?.branchName}
               </p>
-              <p className="text-xs text-slate-500 flex items-center gap-1.5">
+              <p className="text-xs text-slate-500 flex items-center justify-center sm:justify-start gap-1.5">
                 <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                <span>{student?.institutionName}</span>
+                <span>{student?.institutionName || 'MIT Academy of Engineering, Pune'}</span>
               </p>
             </div>
           </div>

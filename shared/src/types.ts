@@ -472,6 +472,31 @@ export interface Message {
   createdAt: string;
 }
 
+export interface MentorshipRequest {
+  id: string;
+  studentUserId: string;
+  mentorUserId: string;
+  topic: string;
+  message: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'completed';
+  responseNotes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  studentUser?: {
+    id: string;
+    email: string;
+    avatarUrl?: string | null;
+    studentProfile?: StudentProfile | null;
+  };
+  mentorUser?: {
+    id: string;
+    email: string;
+    avatarUrl?: string | null;
+    alumniProfile?: AlumniProfile | null;
+    academicianProfile?: AcademicianProfile | null;
+  };
+}
+
 // Analytics DTOs
 export interface StudentAnalytics {
   placementReadinessPct: number;

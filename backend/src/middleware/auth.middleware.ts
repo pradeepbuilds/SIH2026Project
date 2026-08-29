@@ -13,6 +13,7 @@ export interface AuthRequest extends Request {
     companyId?: string | null;
     studentProfileId?: string;
     academicianProfileId?: string;
+    alumniProfileId?: string;
   };
 }
 
@@ -40,6 +41,7 @@ export const authenticateJwt = async (
       include: {
         studentProfile: true,
         academicianProfile: true,
+        alumniProfile: true,
       },
     });
 
@@ -56,6 +58,7 @@ export const authenticateJwt = async (
       companyId: user.companyId,
       studentProfileId: user.studentProfile?.id,
       academicianProfileId: user.academicianProfile?.id,
+      alumniProfileId: user.alumniProfile?.id,
     };
 
     next();

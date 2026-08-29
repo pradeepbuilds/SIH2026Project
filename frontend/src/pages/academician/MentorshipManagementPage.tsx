@@ -32,7 +32,7 @@ export const MentorshipManagementPage: React.FC = () => {
   const [startTime, setStartTime] = useState('04:00 PM');
   const [endTime, setEndTime] = useState('06:00 PM');
   const [mode, setMode] = useState('Online (Google Meet)');
-  const [locationOrLink, setLocationOrLink] = useState('https://meet.google.com/coep-session');
+  const [locationOrLink, setLocationOrLink] = useState('https://meet.google.com/mitaoe-session');
   const [relevantBranch, setRelevantBranch] = useState('Computer Science & Engineering');
   const [relevantSkills, setRelevantSkills] = useState('Java, Spring Boot, SQL');
   const [maxAttendees, setMaxAttendees] = useState(100);

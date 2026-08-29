@@ -200,7 +200,7 @@ const handleCreateItem = async (req: AuthRequest, res: Response) => {
         studentId: student.id,
         type: type || PORTFOLIO_ITEM_TYPES.PROJECT,
         title: title || 'Untitled Project',
-        issuer: issuer || 'COEP Technological University',
+        issuer: issuer || 'MIT Academy of Engineering, Pune',
         description: description || '',
         fileUrl,
         projectUrl: projectUrl || null,

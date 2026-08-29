@@ -115,7 +115,7 @@ export const PublicPortfolioPage: React.FC = () => {
                 <div className="text-emerald-400 font-bold flex items-center justify-center gap-1">
                   <CheckCircle2 className="w-4 h-4" /> VERIFIED CREDENTIALS
                 </div>
-                <div className="text-slate-300 text-[10px]">ID: EDU-COEP-{student.portfolioSlug.slice(0, 12)}</div>
+                <div className="text-slate-300 text-[10px]">ID: EDU-INST-{student.portfolioSlug.slice(0, 12)}</div>
               </div>
             </div>
 
@@ -216,7 +216,7 @@ export const PublicPortfolioPage: React.FC = () => {
 
           {/* Footer Seal */}
           <div className="p-6 bg-slate-900 text-slate-300 text-center text-xs space-y-1">
-            <p className="font-bold text-white">COEP Technological University • Placement Cell</p>
+            <p className="font-bold text-white">{institutionName} • Training & Placement Cell</p>
             <p className="text-slate-400 text-[11px]">
               Verifiable Online Academic Portfolio • Smart India Hackathon (Problem Statement ID 26044)
             </p>

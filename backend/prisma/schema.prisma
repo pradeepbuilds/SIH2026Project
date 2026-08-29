@@ -32,6 +32,8 @@ model User {
   alumniPosts        AlumniPost[]
   alumniPostComments AlumniPostComment[]
   alumniPostLikes    AlumniPostLike[]
+  studentMentorshipRequests MentorshipRequest[] @relation("StudentMentorshipRequests")
+  mentorMentorshipRequests  MentorshipRequest[] @relation("MentorMentorshipRequests")
 }
 
 model Institution {
@@ -529,4 +531,19 @@ model AuditLog {
   entityId   String?
   details    String?  // JSON string
   createdAt  DateTime @default(now())
+}
+
+model MentorshipRequest {
+  id            String   @id @default(uuid())
+  studentUserId String
+  mentorUserId  String
+  topic         String
+  message       String
+  status        String   @default("pending") // 'pending' | 'accepted' | 'rejected' | 'completed'
+  responseNotes String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  studentUser   User     @relation("StudentMentorshipRequests", fields: [studentUserId], references: [id], onDelete: Cascade)
+  mentorUser    User     @relation("MentorMentorshipRequests", fields: [mentorUserId], references: [id], onDelete: Cascade)
 }
