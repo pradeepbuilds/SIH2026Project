@@ -119,7 +119,7 @@ export const PortfolioPage: React.FC = () => {
           <div className="space-y-0.5">
             <span className="font-bold text-blue-900">Your Shareable Public Digital Portfolio:</span>
             <div className="text-slate-600 font-mono">
-              http://localhost:5173/portfolio/{student.portfolioSlug}
+              {window.location.origin}/portfolio/{student.portfolioSlug}
             </div>
           </div>
           <a

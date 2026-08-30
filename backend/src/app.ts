@@ -20,8 +20,13 @@ const app: Express = express();
 // Middleware
 app.use(
   cors({
-    origin: '*',
+    origin: (_origin, callback) => {
+      // Allow all origins with credentials for web/preview/production deployments
+      callback(null, true);
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   })
 );
 app.use(express.json({ limit: '15mb' }));
@@ -30,13 +35,24 @@ app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.resolve(config.uploadDir)));
 
-// Health check
+// Health check endpoints
+app.get('/health', (_req: Request, res: Response) => {
+  res.json({
+    status: 'healthy',
+    system: 'EduBridge — Engineering Academia Industry Collaboration & Placement Platform',
+    timestamp: new Date().toISOString(),
+    version: '2.0.0',
+    environment: config.nodeEnv,
+  });
+});
+
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     system: 'EduBridge — Engineering Academia Industry Collaboration & Placement Platform',
     timestamp: new Date().toISOString(),
     version: '2.0.0',
+    environment: config.nodeEnv,
   });
 });
 

@@ -10,7 +10,7 @@ export const config = {
   databaseUrl: process.env.DATABASE_URL || 'file:./dev.db',
   jwtSecret: process.env.JWT_SECRET || 'sih2026-ayush-portal-super-secret-key-development',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-  uploadDir: process.env.UPLOAD_DIR || path.resolve(__dirname, '../../uploads'),
+  corsOrigin: process.env.CORS_ORIGIN || '*',
+  uploadDir: process.env.UPLOAD_DIR || (process.env.VERCEL ? '/tmp/uploads' : path.resolve(__dirname, '../../uploads')),
   nodeEnv: process.env.NODE_ENV || 'development',
 };

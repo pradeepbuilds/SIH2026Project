@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../../lib/api';
+import { api, getMediaUrl } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { ProfilePhotoUpload } from '../../components/common/ProfilePhotoUpload';
 import {
@@ -850,7 +850,7 @@ export const AlumniDashboard: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-xl overflow-hidden bg-blue-700 text-white flex items-center justify-center font-bold text-sm">
                     {alum.avatarUrl ? (
-                      <img src={alum.avatarUrl.startsWith('http') ? alum.avatarUrl : `http://localhost:5000${alum.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+                      <img src={getMediaUrl(alum.avatarUrl)} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
                       alum.name.slice(0, 2).toUpperCase()
                     )}

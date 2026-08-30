@@ -57,6 +57,7 @@ export const LoginPage: React.FC = () => {
     else if (role === ROLES.ACADEMICIAN) navigate('/academician/dashboard');
     else if (role === ROLES.INDUSTRY) navigate('/industry/dashboard');
     else if (role === ROLES.INSTITUTION_ADMIN) navigate('/admin/dashboard');
+    else if (role === ROLES.ALUMNI) navigate('/alumni/dashboard');
     else navigate('/');
   };
 

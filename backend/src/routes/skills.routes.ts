@@ -7,6 +7,18 @@ import { ROLES, SKILL_CATEGORIES } from '@ayush-portal/shared';
 
 const router = Router();
 
+// GET /api/skills
+router.get('/', async (_req, res: Response) => {
+  try {
+    const skills = await prisma.skill.findMany({
+      orderBy: [{ category: 'asc' }, { name: 'asc' }],
+    });
+    res.json(skills);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch skills' });
+  }
+});
+
 // GET /api/skills/taxonomy
 router.get('/taxonomy', async (_req, res: Response) => {
   try {

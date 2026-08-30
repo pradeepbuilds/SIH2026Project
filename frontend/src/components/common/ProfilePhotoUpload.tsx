@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Camera, Upload, Trash2, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import { api } from '../../lib/api';
+import { api, getMediaUrl } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 
 interface ProfilePhotoUploadProps {
@@ -123,7 +123,7 @@ export const ProfilePhotoUpload: React.FC<ProfilePhotoUploadProps> = ({
       >
         {previewUrl ? (
           <img
-            src={previewUrl.startsWith('http') || previewUrl.startsWith('data:') ? previewUrl : `http://localhost:5000${previewUrl}`}
+            src={getMediaUrl(previewUrl)}
             alt="Profile Avatar"
             className="w-full h-full object-cover"
           />

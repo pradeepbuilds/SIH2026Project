@@ -11,43 +11,46 @@ import { ROLES, UserRole } from '@ayush-portal/shared';
 const router = Router();
 
 const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  role: z.enum([ROLES.STUDENT, ROLES.ACADEMICIAN, ROLES.INDUSTRY, ROLES.INSTITUTION_ADMIN, ROLES.ALUMNI]),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.enum([ROLES.STUDENT, ROLES.ACADEMICIAN, ROLES.INDUSTRY, ROLES.INSTITUTION_ADMIN, ROLES.ALUMNI], {
+    errorMap: () => ({ message: 'Please select a valid role' }),
+  }),
   institutionId: z.string().optional().nullable(),
   companyId: z.string().optional().nullable(),
   // Profile specific fields
-  name: z.string().min(2),
-  degree: z.string().optional(),
-  departmentName: z.string().optional(),
-  branchName: z.string().optional(),
-  year: z.number().int().min(1).max(5).optional(),
-  semester: z.number().int().min(1).max(8).optional(),
-  cgpa: z.number().min(0).max(10).optional(),
-  graduationYear: z.number().int().min(2010).max(2030).optional(),
-  department: z.string().optional(),
-  designation: z.string().optional(),
-  expertiseTags: z.array(z.string()).optional(),
-  companyName: z.string().optional(),
-  industryType: z.string().optional(),
-  companyDescription: z.string().optional(),
-  institutionName: z.string().optional(),
-  institutionType: z.string().optional(),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  degree: z.string().optional().nullable(),
+  departmentName: z.string().optional().nullable(),
+  branchName: z.string().optional().nullable(),
+  year: z.coerce.number().int().min(1).max(5).optional().nullable(),
+  semester: z.coerce.number().int().min(1).max(8).optional().nullable(),
+  cgpa: z.coerce.number().min(0).max(10).optional().nullable(),
+  graduationYear: z.coerce.number().int().min(1970).max(2035).optional().nullable(),
+  department: z.string().optional().nullable(),
+  designation: z.string().optional().nullable(),
+  specialization: z.string().optional().nullable(),
+  expertiseTags: z.union([z.array(z.string()), z.string().transform((s) => [s])]).optional().nullable(),
+  companyName: z.string().optional().nullable(),
+  industryType: z.string().optional().nullable(),
+  companyDescription: z.string().optional().nullable(),
+  institutionName: z.string().optional().nullable(),
+  institutionType: z.string().optional().nullable(),
   // Alumni specific
-  company: z.string().optional(),
-  roleInCompany: z.string().optional(),
-  experienceYears: z.number().optional(),
+  company: z.string().optional().nullable(),
+  roleInCompany: z.string().optional().nullable(),
+  experienceYears: z.coerce.number().min(0).max(50).optional().nullable(),
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
 });
 
 function generateSlug(name: string): string {
   const base = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 30);
   const rand = Math.floor(1000 + Math.random() * 9000);
-  return `${base}-${rand}`;
+  return `${base || 'scholar'}-${rand}`;
 }
 
 // POST /api/auth/register
@@ -69,6 +72,7 @@ router.post('/register', validateBody(registerSchema), async (req: AuthRequest, 
       graduationYear,
       department,
       designation,
+      specialization,
       expertiseTags,
       companyName,
       industryType,
@@ -80,42 +84,68 @@ router.post('/register', validateBody(registerSchema), async (req: AuthRequest, 
       experienceYears,
     } = req.body;
 
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (existing) {
-      res.status(400).json({ error: 'An account with this email already exists.' });
+      res.status(400).json({ error: 'An account with this email address already exists. Please sign in instead.' });
       return;
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    let assignedCompanyId = companyId;
-    let assignedInstitutionId = institutionId;
+    let assignedCompanyId = companyId || null;
+    let assignedInstitutionId = institutionId || null;
 
-    if (role === ROLES.INDUSTRY && !assignedCompanyId && companyName) {
-      const comp = await prisma.company.create({
-        data: {
-          name: companyName,
-          industryType: industryType || 'Enterprise Software & Cloud Systems',
-          description: companyDescription || 'Leading technology and engineering organization.',
-        },
+    if (role === ROLES.INDUSTRY && !assignedCompanyId && companyName && companyName.trim()) {
+      const cName = companyName.trim();
+      let comp = await prisma.company.findFirst({
+        where: { name: cName },
       });
+      if (!comp) {
+        comp = await prisma.company.create({
+          data: {
+            name: cName,
+            industryType: industryType || 'Enterprise Software & Cloud Systems',
+            description: companyDescription || `${cName} talent acquisition and corporate recruitment.`,
+            recruiterName: name,
+            recruiterEmail: normalizedEmail,
+          },
+        });
+      }
       assignedCompanyId = comp.id;
     }
 
-    if (role === ROLES.INSTITUTION_ADMIN && !assignedInstitutionId && institutionName) {
-      const inst = await prisma.institution.create({
-        data: {
-          name: institutionName,
-          type: institutionType || 'Engineering Autonomous College',
-          code: `INST-${Math.floor(1000 + Math.random() * 9000)}`,
-        },
+    if (role === ROLES.INSTITUTION_ADMIN && !assignedInstitutionId && institutionName && institutionName.trim()) {
+      const iName = institutionName.trim();
+      let inst = await prisma.institution.findFirst({
+        where: { name: iName },
       });
+      if (!inst) {
+        inst = await prisma.institution.create({
+          data: {
+            name: iName,
+            type: institutionType || 'Engineering Autonomous College',
+            code: `INST-${Math.floor(1000 + Math.random() * 9000)}`,
+            placementOfficerName: name,
+            placementOfficerEmail: normalizedEmail,
+          },
+        });
+      }
       assignedInstitutionId = inst.id;
+    }
+
+    // Default to primary institution if none specified for academic/student/alumni roles
+    if (!assignedInstitutionId && [ROLES.STUDENT, ROLES.ACADEMICIAN, ROLES.ALUMNI].includes(role)) {
+      const defaultInst = await prisma.institution.findFirst({ orderBy: { createdAt: 'asc' } });
+      if (defaultInst) {
+        assignedInstitutionId = defaultInst.id;
+      }
     }
 
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         passwordHash,
         role,
         institutionId: assignedInstitutionId,
@@ -128,38 +158,47 @@ router.post('/register', validateBody(registerSchema), async (req: AuthRequest, 
       await prisma.studentProfile.create({
         data: {
           userId: user.id,
-          name: name || 'Student',
+          name: name ? name.trim() : 'Student',
           degree: degree || 'B.Tech',
           departmentName: departmentName || 'Computer Science & Engineering',
           branchName: branchName || 'Computer Science & Engineering',
-          year: year || 3,
-          semester: semester || 6,
-          cgpa: cgpa || 8.0,
-          graduationYear: graduationYear || 2026,
+          year: year ? Number(year) : 3,
+          semester: semester ? Number(semester) : 6,
+          cgpa: cgpa !== undefined && cgpa !== null ? Number(cgpa) : 8.0,
+          graduationYear: graduationYear ? Number(graduationYear) : 2026,
           portfolioSlug: generateSlug(name || 'student'),
         },
       });
     } else if (role === ROLES.ACADEMICIAN) {
+      let parsedTags = ['Distributed Systems', 'Software Engineering'];
+      if (expertiseTags) {
+        parsedTags = Array.isArray(expertiseTags) ? expertiseTags : [expertiseTags];
+      } else if (specialization) {
+        parsedTags = [specialization, 'Engineering Pedagogy'];
+      }
       await prisma.academicianProfile.create({
         data: {
           userId: user.id,
-          name: name || 'Faculty Member',
+          name: name ? name.trim() : 'Faculty Member',
           department: department || departmentName || 'Computer Science & Engineering',
           designation: designation || 'Assistant Professor',
-          expertiseTags: JSON.stringify(expertiseTags || ['Distributed Systems', 'Software Engineering']),
+          specialization: specialization || null,
+          expertiseTags: JSON.stringify(parsedTags),
         },
       });
     } else if (role === ROLES.ALUMNI) {
+      const alumCompany = company || companyName || 'Industry Partner';
+      const alumRole = roleInCompany || designation || 'Software Engineer';
       await prisma.alumniProfile.create({
         data: {
           userId: user.id,
-          name: name || 'Alumni Member',
-          graduationYear: graduationYear || 2022,
+          name: name ? name.trim() : 'Alumni Member',
+          graduationYear: graduationYear ? Number(graduationYear) : 2022,
           departmentName: departmentName || 'Computer Science & Engineering',
           branchName: branchName || 'Computer Science & Engineering',
-          company: company || companyName || 'Microsoft India',
-          role: roleInCompany || 'Software Engineer',
-          experienceYears: experienceYears || 3,
+          company: alumCompany,
+          role: alumRole,
+          experienceYears: experienceYears !== undefined && experienceYears !== null ? Number(experienceYears) : 3,
           skills: JSON.stringify(['Java', 'Distributed Systems', 'System Design']),
           isAvailableForMentorship: true,
         },
@@ -183,13 +222,20 @@ router.post('/register', validateBody(registerSchema), async (req: AuthRequest, 
       },
     });
 
+    if (!fullUser) {
+      res.status(500).json({ error: 'Failed to retrieve registered user profile.' });
+      return;
+    }
+
+    const { passwordHash: _, ...safeUser } = fullUser;
+
     res.status(201).json({
       token,
-      user: fullUser,
+      user: safeUser,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Register error:', error);
-    res.status(500).json({ error: 'Registration failed due to an internal server error.' });
+    res.status(500).json({ error: error.message || 'Registration failed due to an internal server error.' });
   }
 });
 
@@ -197,9 +243,10 @@ router.post('/register', validateBody(registerSchema), async (req: AuthRequest, 
 router.post('/login', validateBody(loginSchema), async (req: AuthRequest, res: Response) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = email.toLowerCase().trim();
 
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
       include: {
         studentProfile: true,
         academicianProfile: true,
@@ -232,9 +279,9 @@ router.post('/login', validateBody(loginSchema), async (req: AuthRequest, res: R
       token,
       user: safeUser,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Login failed due to an internal server error.' });
+    res.status(500).json({ error: error.message || 'Login failed due to an internal server error.' });
   }
 });
 

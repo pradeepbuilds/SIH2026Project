@@ -6,7 +6,7 @@ import {
   GraduationCap,
   BookOpen,
   Building2,
-  ShieldCheck,
+  Users,
   Mail,
   Lock,
   User,
@@ -25,7 +25,7 @@ export const RegisterPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
 
-  // Role-specific fields
+  // Student specific fields
   const [degree, setDegree] = useState('B.Tech');
   const [departmentName, setDepartmentName] = useState('Computer Science & Engineering');
   const [branchName, setBranchName] = useState('Computer Science & Engineering');
@@ -33,10 +33,27 @@ export const RegisterPage: React.FC = () => {
   const [semester, setSemester] = useState(6);
   const [cgpa, setCgpa] = useState(8.2);
   const [graduationYear, setGraduationYear] = useState(2026);
+
+  // Faculty specific fields
+  const [facultyDepartment, setFacultyDepartment] = useState('Computer Science & Engineering');
   const [designation, setDesignation] = useState('Assistant Professor');
+  const [specialization, setSpecialization] = useState('Distributed Systems & Cloud Architecture');
+
+  // Industry specific fields
   const [companyName, setCompanyName] = useState('');
   const [industryType, setIndustryType] = useState('Enterprise Software & Cloud Systems');
+
+  // Institution / Placement Cell specific fields
   const [institutionName, setInstitutionName] = useState('MIT Academy of Engineering, Pune');
+  const [institutionType, setInstitutionType] = useState('Autonomous Engineering College');
+
+  // Alumni specific fields
+  const [alumniCompany, setAlumniCompany] = useState('');
+  const [alumniRole, setAlumniRole] = useState('Software Engineer');
+  const [alumniGradYear, setAlumniGradYear] = useState(2023);
+  const [alumniDepartment, setAlumniDepartment] = useState('Computer Science & Engineering');
+  const [alumniBranch, setAlumniBranch] = useState('Computer Science & Engineering');
+  const [experienceYears, setExperienceYears] = useState(2);
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,32 +64,75 @@ export const RegisterPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const payload = {
-        email,
+      let payload: any = {
+        email: email.trim(),
         password,
         role,
-        name,
-        degree,
-        departmentName,
-        branchName,
-        year: Number(year),
-        semester: Number(semester),
-        cgpa: Number(cgpa),
-        graduationYear: Number(graduationYear),
-        department: departmentName,
-        designation,
-        companyName,
-        industryType,
-        institutionName,
+        name: name.trim(),
       };
+
+      if (role === ROLES.STUDENT) {
+        payload = {
+          ...payload,
+          degree,
+          departmentName,
+          branchName,
+          year: Number(year),
+          semester: Number(semester),
+          cgpa: Number(cgpa),
+          graduationYear: Number(graduationYear),
+        };
+      } else if (role === ROLES.ACADEMICIAN) {
+        payload = {
+          ...payload,
+          department: facultyDepartment,
+          designation,
+          specialization,
+          expertiseTags: [specialization, 'Engineering Pedagogy'],
+        };
+      } else if (role === ROLES.INDUSTRY) {
+        payload = {
+          ...payload,
+          companyName: companyName.trim() || 'Tech Innovators Corp',
+          industryType: industryType.trim() || 'Software & Cloud Solutions',
+        };
+      } else if (role === ROLES.INSTITUTION_ADMIN) {
+        payload = {
+          ...payload,
+          institutionName: institutionName.trim() || 'Engineering Autonomous College',
+          institutionType: institutionType.trim() || 'Autonomous Engineering College',
+        };
+      } else if (role === ROLES.ALUMNI) {
+        payload = {
+          ...payload,
+          company: alumniCompany.trim() || 'Tech Global Systems',
+          roleInCompany: alumniRole.trim() || 'Software Engineer',
+          departmentName: alumniDepartment,
+          branchName: alumniBranch,
+          graduationYear: Number(alumniGradYear),
+          experienceYears: Number(experienceYears),
+        };
+      }
 
       const user = await register(payload);
       if (user.role === ROLES.STUDENT) navigate('/student/assessment');
       else if (user.role === ROLES.ACADEMICIAN) navigate('/academician/dashboard');
       else if (user.role === ROLES.INDUSTRY) navigate('/industry/dashboard');
-      else navigate('/admin/dashboard');
+      else if (user.role === ROLES.ALUMNI) navigate('/alumni/dashboard');
+      else if (user.role === ROLES.INSTITUTION_ADMIN) navigate('/admin/dashboard');
+      else navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Registration failed. Please check form fields.');
+      console.error('Registration failed:', err);
+      const backendError = err.response?.data?.error;
+      const details = err.response?.data?.details;
+      if (details && Array.isArray(details) && details.length > 0) {
+        const detailMsgs = details.map((d: any) => `${d.field ? `${d.field}: ` : ''}${d.message}`).join('; ');
+        setError(`${backendError || 'Validation error'}: ${detailMsgs}`);
+      } else if (backendError) {
+        setError(backendError);
+      } else {
+        setError(err.message || 'Registration failed. Please check form fields.');
+      }
     } finally {
       setLoading(false);
     }
@@ -94,12 +154,13 @@ export const RegisterPage: React.FC = () => {
         </div>
 
         {/* Role Selector Tabs */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-200/70 p-1.5 rounded-2xl">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 bg-slate-200/70 p-1.5 rounded-2xl">
           {[
             { id: ROLES.STUDENT, label: 'Student', icon: GraduationCap },
             { id: ROLES.ACADEMICIAN, label: 'Faculty', icon: BookOpen },
             { id: ROLES.INDUSTRY, label: 'Industry', icon: Briefcase },
             { id: ROLES.INSTITUTION_ADMIN, label: 'Placement Cell', icon: Building2 },
+            { id: ROLES.ALUMNI, label: 'Alumni', icon: Users },
           ].map((item) => {
             const Icon = item.icon;
             const isSelected = role === item.id;
@@ -107,7 +168,10 @@ export const RegisterPage: React.FC = () => {
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setRole(item.id as UserRole)}
+                onClick={() => {
+                  setRole(item.id as UserRole);
+                  setError(null);
+                }}
                 className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all ${
                   isSelected
                     ? 'bg-white text-blue-900 shadow-2xs'
@@ -154,7 +218,7 @@ export const RegisterPage: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@college.edu.in"
+                  placeholder="name@organization.com"
                   className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
@@ -268,6 +332,53 @@ export const RegisterPage: React.FC = () => {
             </div>
           )}
 
+          {/* Faculty Specific Fields */}
+          {role === ROLES.ACADEMICIAN && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Department</label>
+                <select
+                  value={facultyDepartment}
+                  onChange={(e) => setFacultyDepartment(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white font-medium"
+                >
+                  {ENGINEERING_DEPARTMENTS.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Designation</label>
+                <select
+                  value={designation}
+                  onChange={(e) => setDesignation(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white font-medium"
+                >
+                  <option value="Professor & HOD">Professor & HOD</option>
+                  <option value="Professor">Professor</option>
+                  <option value="Associate Professor">Associate Professor</option>
+                  <option value="Assistant Professor">Assistant Professor</option>
+                  <option value="Training & Placement Officer">Training & Placement Officer</option>
+                  <option value="Dean / Director">Dean / Director</option>
+                </select>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block font-bold text-slate-700 mb-1">Specialization / Research Area</label>
+                <input
+                  type="text"
+                  value={specialization}
+                  onChange={(e) => setSpecialization(e.target.value)}
+                  placeholder="e.g. Distributed Systems, Robotics & AI, Structural Dynamics"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Industry Specific Fields */}
           {role === ROLES.INDUSTRY && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
@@ -289,6 +400,102 @@ export const RegisterPage: React.FC = () => {
                   value={industryType}
                   onChange={(e) => setIndustryType(e.target.value)}
                   placeholder="e.g. Enterprise Software & Cloud"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Institution Admin Specific Fields */}
+          {role === ROLES.INSTITUTION_ADMIN && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Institution / College Name</label>
+                <input
+                  type="text"
+                  required
+                  value={institutionName}
+                  onChange={(e) => setInstitutionName(e.target.value)}
+                  placeholder="e.g. MIT Academy of Engineering, Pune"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Institution Type</label>
+                <input
+                  type="text"
+                  value={institutionType}
+                  onChange={(e) => setInstitutionType(e.target.value)}
+                  placeholder="e.g. Autonomous Engineering College"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Alumni Specific Fields */}
+          {role === ROLES.ALUMNI && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Current Company</label>
+                <input
+                  type="text"
+                  required
+                  value={alumniCompany}
+                  onChange={(e) => setAlumniCompany(e.target.value)}
+                  placeholder="e.g. Microsoft India, Google, TCS"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Current Role / Title</label>
+                <input
+                  type="text"
+                  required
+                  value={alumniRole}
+                  onChange={(e) => setAlumniRole(e.target.value)}
+                  placeholder="e.g. Senior Software Engineer"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Graduated Department</label>
+                <select
+                  value={alumniDepartment}
+                  onChange={(e) => {
+                    const d = e.target.value;
+                    const b = ENGINEERING_BRANCHES[d] || [d];
+                    setAlumniDepartment(d);
+                    setAlumniBranch(b[0]);
+                  }}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white font-medium"
+                >
+                  {ENGINEERING_DEPARTMENTS.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Graduation Year</label>
+                <input
+                  type="number"
+                  min="1990"
+                  max="2025"
+                  value={alumniGradYear}
+                  onChange={(e) => setAlumniGradYear(Number(e.target.value))}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Years of Experience</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="40"
+                  value={experienceYears}
+                  onChange={(e) => setExperienceYears(Number(e.target.value))}
                   className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>

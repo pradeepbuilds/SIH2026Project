@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../../lib/api';
+import { api, getMediaUrl } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import {
   Users,
@@ -295,7 +295,7 @@ export const AlumniDirectoryPage: React.FC = () => {
                       <div className="w-12 h-12 rounded-xl bg-blue-700 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-2xs overflow-hidden">
                         {a.avatarUrl ? (
                           <img
-                            src={a.avatarUrl.startsWith('http') ? a.avatarUrl : `http://localhost:5000${a.avatarUrl}`}
+                            src={getMediaUrl(a.avatarUrl)}
                             alt={a.name}
                             className="w-full h-full object-cover"
                           />
@@ -444,7 +444,7 @@ export const AlumniDirectoryPage: React.FC = () => {
                       <div className="w-10 h-10 rounded-xl overflow-hidden bg-blue-700 text-white flex items-center justify-center font-bold text-xs">
                         {post.authorAvatarUrl ? (
                           <img
-                            src={post.authorAvatarUrl.startsWith('http') ? post.authorAvatarUrl : `http://localhost:5000${post.authorAvatarUrl}`}
+                            src={getMediaUrl(post.authorAvatarUrl)}
                             alt={post.authorName}
                             className="w-full h-full object-cover"
                           />

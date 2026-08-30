@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { api } from '../../lib/api';
+import { api, getMediaUrl } from '../../lib/api';
 import {
   GraduationCap,
   Bell,
@@ -473,7 +473,7 @@ export const Navbar: React.FC = () => {
                     <div className="w-7 h-7 rounded-lg overflow-hidden bg-blue-700 text-white flex items-center justify-center text-xs font-black shadow-2xs">
                       {(user?.avatarUrl || student?.avatarUrl || faculty?.avatarUrl || alumni?.avatarUrl || company?.logoUrl || institution?.logoUrl) ? (
                         <img
-                          src={(user?.avatarUrl || student?.avatarUrl || faculty?.avatarUrl || alumni?.avatarUrl || company?.logoUrl || institution?.logoUrl)!.startsWith('http') ? (user?.avatarUrl || student?.avatarUrl || faculty?.avatarUrl || alumni?.avatarUrl || company?.logoUrl || institution?.logoUrl)! : `http://localhost:5000${user?.avatarUrl || student?.avatarUrl || faculty?.avatarUrl || alumni?.avatarUrl || company?.logoUrl || institution?.logoUrl}`}
+                          src={getMediaUrl(user?.avatarUrl || student?.avatarUrl || faculty?.avatarUrl || alumni?.avatarUrl || company?.logoUrl || institution?.logoUrl)}
                           alt="Avatar"
                           className="w-full h-full object-cover"
                         />
